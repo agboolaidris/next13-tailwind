@@ -1,6 +1,7 @@
 import React from "react";
 import SQTable from "../components/table";
 import { createColumnHelper, ColumnDef } from "@tanstack/react-table";
+import ProductModule from "../modules/product";
 
 type Person = {
   firstName: string;
@@ -38,46 +39,10 @@ const defaultData: Person[] = [
   },
 ];
 
-const columns: ColumnDef<Person>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-    size: 60,
-  },
-  {
-    accessorKey: "firstName",
-    cell: (info) => info.getValue(),
-  },
-  {
-    accessorFn: (row) => row.lastName,
-    accessorKey: "lastName",
-    cell: (info) => info.getValue(),
-    header: () => <span>Last Name</span>,
-  },
-  {
-    accessorKey: "age",
-    header: () => "Age",
-    size: 50,
-  },
-  {
-    accessorKey: "visits",
-    header: () => <span>Visits</span>,
-    size: 50,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-  },
-  {
-    accessorKey: "progress",
-    header: "Profile Progress",
-    size: 80,
-  },
-];
 function Table() {
   return (
     <div>
-      <SQTable columns={columns} rows={defaultData} />
+      <ProductModule />
     </div>
   );
 }

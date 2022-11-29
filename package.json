@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@faker-js/faker": "^7.6.0",
     "@tanstack/react-query": "^4.18.0",
     "@tanstack/react-query-devtools": "^4.18.0",
     "@tanstack/react-table": "^8.7.0",
@@ -21,6 +22,7 @@
     "next": "13.0.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-paginate": "^8.1.4",
     "react-table": "^7.8.0",
     "typescript": "4.9.3"
   },
