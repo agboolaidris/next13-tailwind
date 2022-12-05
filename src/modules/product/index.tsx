@@ -2,6 +2,7 @@ import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import SQTable from "../../components/table";
 import { makeData, Person } from "./data";
+import { DateTime } from "luxon";
 
 function ProductModule() {
   //const rows = makeData(1000);
@@ -42,6 +43,13 @@ function ProductModule() {
       accessorKey: "progress",
       header: "Profile Progress",
       size: 80,
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Date",
+      size: 80,
+      cell: (cell: any) =>
+        DateTime.fromMillis(cell.getValue()).toLocaleString(),
     },
   ];
   return (

@@ -1,21 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  flexRender,
-  getCoreRowModel,
+  Column,
+  Table,
   useReactTable,
-  ColumnDef,
-  getSortedRowModel,
+  ColumnFiltersState,
+  getCoreRowModel,
   getFilteredRowModel,
-  SortingState,
   getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFacetedMinMaxValues,
   getPaginationRowModel,
+  sortingFns,
+  getSortedRowModel,
   FilterFn,
+  SortingFn,
+  ColumnDef,
+  flexRender,
+  FilterFns,
+  SortingState,
 } from "@tanstack/react-table";
-import { rankItem, compareItems } from "@tanstack/match-sorter-utils";
+import {
+  RankingInfo,
+  rankItem,
+  compareItems,
+} from "@tanstack/match-sorter-utils";
 import ReactPaginate from "react-paginate";
+import { Filter } from "./t";
 interface SQTableProps {
   columns: ColumnDef<any>[];
   rows: any[];
+}
+
+declare module "@tanstack/table-core" {
+  interface FilterFns {
+    fuzzy: FilterFn<unknown>;
+  }
+  interface FilterMeta {
+    itemRank: RankingInfo;
+  }
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -31,41 +53,78 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed;
 };
 
+const fuzzySort: SortingFn<any> = (rowA, rowB, columnId) => {
+  let dir = 0;
+
+  // Only sort by rank if the column has ranking information
+  if (rowA.columnFiltersMeta[columnId]) {
+    dir = compareItems(
+      rowA.columnFiltersMeta[columnId]?.itemRank!,
+      rowB.columnFiltersMeta[columnId]?.itemRank!
+    );
+  }
+
+  // Provide an alphanumeric fallback for when the item ranks are equal
+  return dir === 0 ? sortingFns.alphanumeric(rowA, rowB, columnId) : dir;
+};
 function SQTable({ columns, rows }: SQTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [dateColumn, setDateColumn] = useState<
+    Column<any, unknown> | undefined
+  >(undefined);
 
   const table = useReactTable({
     data: rows,
     columns,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
     state: {
-      //columnFilters,
+      columnFilters,
       globalFilter,
       sorting,
     },
-    //onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
-    //getFacetedUniqueValues: getFacetedUniqueValues(),
-    // getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    //debugTable: true,
-    // debugHeaders: true,
-    //debugColumns: false,
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
+    debugTable: true,
+    debugHeaders: true,
+    debugColumns: false,
   });
+  useEffect(() => {
+    let column = undefined;
+    table.getHeaderGroups().forEach((headerGroup) =>
+      headerGroup.headers.forEach((header) => {
+        if (header.column.id === "createdAt") {
+          column = header.column;
+        }
+      })
+    );
+    setDateColumn(column);
+  }, [table]);
 
   return (
     <div className="bg-slate-50 container mx-auto min-h-screen">
-      <div className="flex my-4">
+      <div className="flex p-4 justify-between">
+        <Filter column={dateColumn} table={table} />
+
         <input
           value={globalFilter}
           onChange={(e) => setGlobalFilter(String(e.target.value))}
-          className="border-gray border rounded h-[50px] w-[300px] max-w-full focus:border-purple-800 px-4 focus:outline-purple-800"
+          placeholder="can’t find something? search it here!"
+          className="border-purple-800 text-purple-800 placeholder:text-purple-900 border rounded h-[50px] w-[400px] max-w-full focus:border-purple-800 px-4 focus:outline-purple-800"
         />
       </div>
       <table className="w-full border-collapse ">
@@ -110,7 +169,7 @@ function SQTable({ columns, rows }: SQTableProps) {
           nextLabel=">"
           onPageChange={(item) => table.setPageIndex(item.selected)}
           pageRangeDisplayed={1}
-          pageCount={Math.round(rows.length / 10)}
+          pageCount={Math.round(table.getPageCount() / 10)}
           breakClassName="w-[20px] h-[20px] flex justify-center items-center ml-2"
           previousLabel="<"
           nextClassName="w-[30px] h-[30px] flex justify-center items-center rounded border border-purple-800 ml-2"

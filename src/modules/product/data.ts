@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
-
+import dayjs from "dayjs";
+import dt, { DateTime, ToISOFormat } from "luxon";
 export type Person = {
   id: number;
   firstName: string;
@@ -8,7 +9,7 @@ export type Person = {
   visits: number;
   progress: number;
   status: "relationship" | "complicated" | "single";
-  createdAt: Date;
+  createdAt: number;
   subRows?: Person[];
 };
 
@@ -28,7 +29,9 @@ const newPerson = (): Person => {
     age: faker.datatype.number(40),
     visits: faker.datatype.number(1000),
     progress: faker.datatype.number(100),
-    createdAt: faker.datatype.datetime({ max: new Date().getTime() }),
+    createdAt: DateTime.fromJSDate(
+      faker.datatype.datetime({ max: new Date().getTime() })
+    ).toMillis(),
     status: faker.helpers.shuffle<Person["status"]>([
       "relationship",
       "complicated",

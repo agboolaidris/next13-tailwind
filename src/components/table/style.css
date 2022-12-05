@@ -1,0 +1,4 @@
+.example {
+  background-color: aquamarine;
+  @apply sm:bg-inherit  odd:first-letter bottom-0 bg-slate-200;
+}
