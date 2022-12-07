@@ -1,70 +1,52 @@
-import { useQuery, dehydrate, QueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import Link from "next/link";
+import Button from "../components/button";
+import TextArea from "../components/textField";
+import { useForm } from "react-hook-form";
 
+type FormValue = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+};
 export default function Home() {
-  const { data, isLoading, error, isError, isFetching } = useQuery({
-    queryKey: ["posts"],
-    queryFn: () => {
-      return axios
-        .get("https://jsonplaceholder.typicode.com/posts")
-        .then((res) => res.data);
-    },
-    //cacheTime: 2000,
-    // staleTime: 300,
-    //refetchOnMount: false,
-    //cacheTime: 5000,
-    //refetchInterval: 5000,
-    // refetchIntervalInBackground: true,
-    // enabled: false,
-    //onError: () => console.log("err"),
-
-    //onSuccess: () => null,
-  });
-  console.log(isLoading, isFetching);
-  //if (isError) return <h1>{error?.message}</h1>;
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<FormValue>();
+  const handleSubmitForm = (data: FormValue) => {
+    console.log(data);
+    alert();
+  };
   return (
-    <div className="bg-gray-300 min-h-screen w-full">
-      <div className="bg-slate-500 p-8 w-full">
-        <Link className="bg-yellow-700 p-4 rounded text-white" href="/">
-          Home
-        </Link>
-        <Link
-          href="/about"
-          className="bg-yellow-700 p-4 ml-2  rounded text-white"
-        >
-          About
-        </Link>
-      </div>
-      <div className="container mx-auto bg-slate-500">
-        {isLoading && <p>Loading........</p>}
-        {!isLoading && (
-          <div className="flex  justify-center flex-wrap">
-            {data.map((d: any) => (
-              <p key={d.id} className="bg-slate-400 p-4 rounded m-4 w-[200px]">
-                {d.title}
-              </p>
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="bg-purple-50 min-h-screen flex justify-center items-center ">
+      <form
+        className="w-[500px] max-w-full bg-purple-100 rounded p-4 lg:p-8"
+        onSubmit={handleSubmit(handleSubmitForm)}
+      >
+        <TextArea
+          {...register("firstName", { required: true })}
+          error={errors.firstName?.message}
+        />
+        <TextArea
+          containerClassName="mt-4"
+          {...register("lastName", { required: true })}
+          error={errors.lastName?.message}
+        />
+        <TextArea
+          containerClassName="mt-4"
+          {...register("email", { required: true })}
+          error={errors.email?.message}
+        />
+        <TextArea
+          containerClassName="mt-4"
+          {...register("password", { required: true })}
+          error={errors.password?.message}
+        />
+        <Button className="mt-4" type="submit">
+          Submit
+        </Button>
+      </form>
     </div>
   );
-}
-
-export async function getStaticProps() {
-  const queryClient = new QueryClient();
-
-  await queryClient.prefetchQuery(["posts"], () => {
-    return fetch("https://jsonplaceholder.typicode.com/posts").then((res) => {
-      //console.log(res.json(), "ggggg");
-      return res.json();
-    });
-  });
-
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
-  };
 }
