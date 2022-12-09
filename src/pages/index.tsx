@@ -1,51 +1,76 @@
 import Button from "../components/button";
-import TextArea from "../components/textField";
+import TextField from "../components/textField";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 type FormValue = {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+  confirmPassword: string;
 };
+
+const schema = yup.object().shape({
+  firstName: yup.string().min(3).max(20).required(),
+  lastName: yup.string().min(3).max(20).required(),
+  email: yup.string().email().required(),
+  password: yup.string().max(300).min(10).required(),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password"), null], "Password must match")
+    .required(),
+});
+
 export default function Home() {
   const {
     register,
     formState: { errors },
     handleSubmit,
-  } = useForm<FormValue>();
+  } = useForm<FormValue>({
+    resolver: yupResolver(schema),
+  });
+
   const handleSubmitForm = (data: FormValue) => {
     console.log(data);
-    alert();
   };
   return (
     <div className="bg-purple-50 min-h-screen flex justify-center items-center ">
       <form
-        className="w-[500px] max-w-full bg-purple-100 rounded p-4 lg:p-8"
-        onSubmit={handleSubmit(handleSubmitForm)}
+        className="bg-purple-100 rounded p-8 w-96"
+        onSubmit={handleSubmit((data) => handleSubmitForm(data))}
       >
-        <TextArea
-          {...register("firstName", { required: true })}
+        <TextField
+          placeholder="First Name"
+          {...register("firstName")}
           error={errors.firstName?.message}
         />
-        <TextArea
-          containerClassName="mt-4"
-          {...register("lastName", { required: true })}
+        <TextField
+          placeholder="Last Name"
           error={errors.lastName?.message}
+          className="mt-4"
+          {...register("lastName")}
         />
-        <TextArea
-          containerClassName="mt-4"
-          {...register("email", { required: true })}
+        <TextField
+          placeholder="Email"
+          className="mt-4"
+          {...register("email")}
           error={errors.email?.message}
         />
-        <TextArea
-          containerClassName="mt-4"
-          {...register("password", { required: true })}
+        <TextField
+          placeholder="Password"
+          className="mt-4"
+          {...register("password")}
           error={errors.password?.message}
         />
-        <Button className="mt-4" type="submit">
-          Submit
-        </Button>
+        <TextField
+          placeholder="Confirm Password"
+          className="mt-4"
+          {...register("confirmPassword")}
+          error={errors.confirmPassword?.message}
+        />
+        <Button className="mt-4">Submit</Button>
       </form>
     </div>
   );

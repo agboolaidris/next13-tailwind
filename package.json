@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
+    "@hookform/resolvers": "^2.9.10",
     "@tanstack/react-query": "^4.18.0",
     "@tanstack/react-query-devtools": "^4.18.0",
     "@tanstack/react-table": "^8.7.0",
@@ -20,12 +21,14 @@
     "eslint": "8.28.0",
     "eslint-config-next": "13.0.5",
     "next": "13.0.5",
+    "rc-tooltip": "^5.2.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.40.0",
     "react-paginate": "^8.1.4",
     "react-table": "^7.8.0",
-    "typescript": "4.9.3"
+    "typescript": "4.9.3",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@types/react-table": "^7.7.12",
